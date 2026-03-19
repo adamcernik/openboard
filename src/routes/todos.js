@@ -41,7 +41,7 @@ router.patch('/:id', (req, res) => {
     return res.status(404).json({ error: 'Todo not found' });
   }
 
-  const fields = ['title', 'category', 'done'];
+  const fields = ['title', 'category', 'done', 'converted'];
   const updates = [];
   const params = [];
 

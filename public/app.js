@@ -85,6 +85,7 @@ function closeModal() {
   $('#modal-overlay').classList.remove('open');
   $('#task-form').reset();
   $('#task-id').value = '';
+  $('#converting-todo-id').value = '';
   $('#delete-task-btn').style.display = 'none';
   $('#modal-title').textContent = 'New Task';
 }
@@ -113,6 +114,15 @@ function openEditModal(task) {
   openModal();
 }
 
+// Open task modal pre-filled with todo title for conversion
+function openConvertModal(todo) {
+  closeModal();
+  $('#modal-title').textContent = 'Convert Todo → Task';
+  $('#task-title').value = todo.title;
+  $('#converting-todo-id').value = todo.id;
+  openModal();
+}
+
 // Save
 $('#task-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -127,14 +137,27 @@ $('#task-form').addEventListener('submit', async (e) => {
 
   const id = $('#task-id').value;
 
+  const convertingTodoId = $('#converting-todo-id').value;
+
   if (id) {
     await fetch(`${API}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
   } else {
     await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
   }
 
+  // If this task was created from a todo conversion, mark the todo as converted
+  if (convertingTodoId) {
+    await fetch(`${TODOS_API}/${convertingTodoId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ converted: 1 })
+    });
+  }
+
   closeModal();
   loadTasks();
+  // Refresh todos in case the user switches back to the todos view
+  if (convertingTodoId) loadTodos();
 });
 
 // Delete
@@ -204,11 +227,14 @@ function renderTodos(todos) {
       <h3 class="todo-category-title">${esc(cat)}</h3>
       <div class="todo-list">
         ${grouped[cat].map(t => `
-          <div class="todo-item ${t.done ? 'todo-done' : ''}" data-id="${t.id}">
+          <div class="todo-item ${t.done ? 'todo-done' : ''} ${t.converted ? 'todo-converted' : ''}" data-id="${t.id}">
             <label class="todo-checkbox">
-              <input type="checkbox" ${t.done ? 'checked' : ''} data-todo-id="${t.id}">
+              <input type="checkbox" ${t.done ? 'checked' : ''} ${t.converted ? 'disabled' : ''} data-todo-id="${t.id}">
               <span class="todo-title">${esc(t.title)}</span>
             </label>
+            ${t.converted
+              ? '<span class="todo-converted-badge">Converted</span>'
+              : `<button class="todo-convert" data-todo-id="${t.id}" title="Convert to Task">&#x2197;</button>`}
             <button class="todo-delete" data-todo-id="${t.id}">&times;</button>
           </div>
         `).join('')}
@@ -236,6 +262,14 @@ function renderTodos(todos) {
     btn.addEventListener('click', async () => {
       await fetch(`${TODOS_API}/${btn.dataset.todoId}`, { method: 'DELETE' });
       loadTodos();
+    });
+  });
+
+  // Convert to task
+  panel.querySelectorAll('.todo-convert').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const todo = todos.find(t => t.id === +btn.dataset.todoId);
+      if (todo) openConvertModal(todo);
     });
   });
 

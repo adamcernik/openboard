@@ -390,6 +390,41 @@ body {
   opacity: 0.45;
 }
 
+/* Convert to Task button */
+.todo-convert {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  padding: 0 4px;
+}
+
+.todo-item:hover .todo-convert { opacity: 1; }
+.todo-convert:hover { color: var(--primary); }
+
+/* Converted todo styling */
+.todo-converted {
+  opacity: 0.5;
+}
+
+.todo-converted .todo-title {
+  text-decoration: line-through;
+}
+
+.todo-converted-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(108,92,231,0.15);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
 .todo-delete {
   background: none;
   border: none;
