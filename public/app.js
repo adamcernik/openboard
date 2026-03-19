@@ -1,6 +1,8 @@
 const API = '/api/tasks';
+const TODOS_API = '/api/todos';
 
 let filters = { status: '', assignee: '' };
+let currentView = 'tasks';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -144,6 +146,113 @@ $('#delete-task-btn').addEventListener('click', async () => {
     loadTasks();
   }
 });
+
+// === View switching ===
+$$('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    switchView(btn.dataset.view);
+  });
+});
+
+function switchView(view) {
+  currentView = view;
+  if (view === 'tasks') {
+    $('#task-filters').style.display = '';
+    $('#task-grid').style.display = '';
+    $('#todos-panel').style.display = 'none';
+    $('#new-task-btn').style.display = '';
+    $('#view-title').textContent = 'All Tasks';
+    updateViewTitle();
+    loadTasks();
+  } else {
+    $('#task-filters').style.display = 'none';
+    $('#task-grid').style.display = 'none';
+    $('#todos-panel').style.display = '';
+    $('#new-task-btn').style.display = 'none';
+    $('#view-title').textContent = 'Todos';
+    loadTodos();
+  }
+}
+
+// === Todos ===
+async function loadTodos() {
+  const res = await fetch(TODOS_API);
+  const todos = await res.json();
+  renderTodos(todos);
+}
+
+function renderTodos(todos) {
+  const panel = $('#todos-panel');
+  const grouped = {};
+  todos.forEach(t => {
+    const cat = t.category || 'Uncategorized';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(t);
+  });
+
+  const categoryOrder = ['Infrastruktura & Workflow', 'Tým botů', 'Dashboard', 'Projekty'];
+  const sortedKeys = Object.keys(grouped).sort((a, b) => {
+    const ai = categoryOrder.indexOf(a);
+    const bi = categoryOrder.indexOf(b);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  });
+
+  panel.innerHTML = sortedKeys.map(cat => `
+    <div class="todo-category">
+      <h3 class="todo-category-title">${esc(cat)}</h3>
+      <div class="todo-list">
+        ${grouped[cat].map(t => `
+          <div class="todo-item ${t.done ? 'todo-done' : ''}" data-id="${t.id}">
+            <label class="todo-checkbox">
+              <input type="checkbox" ${t.done ? 'checked' : ''} data-todo-id="${t.id}">
+              <span class="todo-title">${esc(t.title)}</span>
+            </label>
+            <button class="todo-delete" data-todo-id="${t.id}">&times;</button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="todo-add">
+        <input type="text" class="todo-add-input" placeholder="+ Add todo..." data-category="${esc(cat)}">
+      </div>
+    </div>
+  `).join('');
+
+  // Toggle done
+  panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', async () => {
+      await fetch(`${TODOS_API}/${cb.dataset.todoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done: cb.checked ? 1 : 0 })
+      });
+      loadTodos();
+    });
+  });
+
+  // Delete
+  panel.querySelectorAll('.todo-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await fetch(`${TODOS_API}/${btn.dataset.todoId}`, { method: 'DELETE' });
+      loadTodos();
+    });
+  });
+
+  // Add todo
+  panel.querySelectorAll('.todo-add-input').forEach(input => {
+    input.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter' && input.value.trim()) {
+        await fetch(TODOS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: input.value.trim(), category: input.dataset.category })
+        });
+        loadTodos();
+      }
+    });
+  });
+}
 
 // Init
 loadTasks();

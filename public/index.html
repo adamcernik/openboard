@@ -11,21 +11,29 @@
     <aside class="sidebar">
       <h1 class="logo">TaskBoard</h1>
 
-      <div class="filter-section">
-        <h3>Status</h3>
-        <button class="filter-btn active" data-filter="status" data-value="">All</button>
-        <button class="filter-btn" data-filter="status" data-value="todo">To Do</button>
-        <button class="filter-btn" data-filter="status" data-value="in-progress">In Progress</button>
-        <button class="filter-btn" data-filter="status" data-value="done">Done</button>
+      <div class="nav-section">
+        <h3>Views</h3>
+        <button class="nav-btn active" data-view="tasks">Tasks</button>
+        <button class="nav-btn" data-view="todos">Todos</button>
       </div>
 
-      <div class="filter-section">
-        <h3>Assignee</h3>
-        <button class="filter-btn active" data-filter="assignee" data-value="">All</button>
-        <button class="filter-btn" data-filter="assignee" data-value="TARS">TARS</button>
-        <button class="filter-btn" data-filter="assignee" data-value="Erik">Erik</button>
-        <button class="filter-btn" data-filter="assignee" data-value="Brock">Brock</button>
-        <button class="filter-btn" data-filter="assignee" data-value="Adam">Adam</button>
+      <div id="task-filters">
+        <div class="filter-section">
+          <h3>Status</h3>
+          <button class="filter-btn active" data-filter="status" data-value="">All</button>
+          <button class="filter-btn" data-filter="status" data-value="todo">To Do</button>
+          <button class="filter-btn" data-filter="status" data-value="in-progress">In Progress</button>
+          <button class="filter-btn" data-filter="status" data-value="done">Done</button>
+        </div>
+
+        <div class="filter-section">
+          <h3>Assignee</h3>
+          <button class="filter-btn active" data-filter="assignee" data-value="">All</button>
+          <button class="filter-btn" data-filter="assignee" data-value="TARS">TARS</button>
+          <button class="filter-btn" data-filter="assignee" data-value="Erik">Erik</button>
+          <button class="filter-btn" data-filter="assignee" data-value="Brock">Brock</button>
+          <button class="filter-btn" data-filter="assignee" data-value="Adam">Adam</button>
+        </div>
       </div>
     </aside>
 
@@ -36,6 +44,8 @@
       </header>
 
       <div class="task-grid" id="task-grid"></div>
+
+      <div class="todos-panel" id="todos-panel" style="display:none"></div>
     </main>
   </div>
 
