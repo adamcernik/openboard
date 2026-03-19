@@ -26,9 +26,17 @@ db.exec(`
     title TEXT NOT NULL,
     category TEXT,
     done INTEGER DEFAULT 0,
+    converted INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT (datetime('now'))
   )
 `);
+
+// Migration: add converted column if missing (existing databases)
+try {
+  db.exec('ALTER TABLE todos ADD COLUMN converted INTEGER DEFAULT 0');
+} catch (e) {
+  if (!e.message.includes('duplicate column')) throw e;
+}
 
 // Seed todos if table is empty
 const todoCount = db.prepare('SELECT COUNT(*) as count FROM todos').get();

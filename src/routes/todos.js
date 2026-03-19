@@ -41,7 +41,11 @@ router.patch('/:id', (req, res) => {
     return res.status(404).json({ error: 'Todo not found' });
   }
 
-  const fields = ['title', 'category', 'done'];
+  if (req.body.converted !== undefined && ![0, 1].includes(req.body.converted)) {
+    return res.status(400).json({ error: 'converted must be 0 or 1' });
+  }
+
+  const fields = ['title', 'category', 'done', 'converted'];
   const updates = [];
   const params = [];
 
@@ -61,6 +65,43 @@ router.patch('/:id', (req, res) => {
 
   const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
   res.json(todo);
+});
+
+// POST /api/todos/:id/convert — atomic todo→task conversion
+router.post('/:id/convert', (req, res) => {
+  const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
+  if (!todo) {
+    return res.status(404).json({ error: 'Todo not found' });
+  }
+  if (todo.converted) {
+    return res.status(409).json({ error: 'Todo already converted' });
+  }
+
+  const { description, priority, status, assignee } = req.body;
+
+  const convert = db.transaction(() => {
+    const result = db.prepare(`
+      INSERT INTO tasks (title, description, priority, status, assignee)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(
+      todo.title,
+      description || '',
+      priority || 'medium',
+      status || 'todo',
+      assignee || null
+    );
+
+    db.prepare('UPDATE todos SET converted = 1 WHERE id = ?').run(todo.id);
+
+    return db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
+  });
+
+  try {
+    const task = convert();
+    res.status(201).json(task);
+  } catch (err) {
+    res.status(500).json({ error: 'Conversion failed' });
+  }
 });
 
 // DELETE /api/todos/:id
