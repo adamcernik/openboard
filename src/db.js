@@ -35,7 +35,7 @@ db.exec(`
 try {
   db.exec('ALTER TABLE todos ADD COLUMN converted INTEGER DEFAULT 0');
 } catch (e) {
-  // Column already exists — safe to ignore
+  if (!e.message.includes('duplicate column')) throw e;
 }
 
 // Seed todos if table is empty

@@ -136,27 +136,35 @@ $('#task-form').addEventListener('submit', async (e) => {
   };
 
   const id = $('#task-id').value;
-
   const convertingTodoId = $('#converting-todo-id').value;
 
-  if (id) {
-    await fetch(`${API}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  } else {
-    await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  }
+  try {
+    let res;
 
-  // If this task was created from a todo conversion, mark the todo as converted
-  if (convertingTodoId) {
-    await fetch(`${TODOS_API}/${convertingTodoId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ converted: 1 })
-    });
+    if (convertingTodoId) {
+      // Atomic conversion: single endpoint creates task + marks todo converted
+      res = await fetch(`${TODOS_API}/${convertingTodoId}/convert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } else if (id) {
+      res = await fetch(`${API}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    } else {
+      res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Request failed');
+    }
+  } catch (err) {
+    alert(`Failed to save: ${err.message}`);
+    return;
   }
 
   closeModal();
   loadTasks();
-  // Refresh todos in case the user switches back to the todos view
   if (convertingTodoId) loadTodos();
 });
 
