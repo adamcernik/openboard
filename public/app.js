@@ -1,5 +1,6 @@
 const API = '/api/tasks';
 const TODOS_API = '/api/todos';
+const DEVLOG_API = '/api/devlog';
 
 let filters = { status: '', assignee: '' };
 let currentView = 'tasks';
@@ -189,21 +190,27 @@ $$('.nav-btn').forEach(btn => {
 
 function switchView(view) {
   currentView = view;
+  $('#task-filters').style.display = 'none';
+  $('#task-grid').style.display = 'none';
+  $('#todos-panel').style.display = 'none';
+  $('#devlog-panel').style.display = 'none';
+  $('#new-task-btn').style.display = 'none';
+
   if (view === 'tasks') {
     $('#task-filters').style.display = '';
     $('#task-grid').style.display = '';
-    $('#todos-panel').style.display = 'none';
     $('#new-task-btn').style.display = '';
     $('#view-title').textContent = 'All Tasks';
     updateViewTitle();
     loadTasks();
-  } else {
-    $('#task-filters').style.display = 'none';
-    $('#task-grid').style.display = 'none';
-    $('#todos-panel').style.display = '';
-    $('#new-task-btn').style.display = 'none';
+  } else if (view === 'todos') {
     $('#view-title').textContent = 'Todos';
+    $('#todos-panel').style.display = '';
     loadTodos();
+  } else if (view === 'devlog') {
+    $('#view-title').textContent = 'Dev Log';
+    $('#devlog-panel').style.display = '';
+    loadDevLog();
   }
 }
 
@@ -295,6 +302,76 @@ function renderTodos(todos) {
     });
   });
 }
+
+// === Dev Log ===
+const AGENT_COLORS = { Erik: '#3b82f6', Brock: '#a855f7', Tars: '#22c55e' };
+
+async function loadDevLog() {
+  const res = await fetch(DEVLOG_API);
+  const entries = await res.json();
+  renderDevLog(entries);
+}
+
+function renderDevLog(entries) {
+  const timeline = $('#devlog-timeline');
+  if (entries.length === 0) {
+    timeline.innerHTML = '<div class="empty-state">No dev log entries yet.</div>';
+    return;
+  }
+
+  timeline.innerHTML = entries.map(e => {
+    const date = new Date(e.created_at + 'Z');
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const color = AGENT_COLORS[e.agent] || 'var(--text-muted)';
+
+    return `
+      <div class="devlog-entry">
+        <div class="devlog-dot" style="background:${color}"></div>
+        <div class="devlog-content">
+          <div class="devlog-header">
+            <span class="devlog-agent" style="background:${color}20;color:${color}">${esc(e.agent || 'Unknown')}</span>
+            <span class="devlog-date">${dateStr}</span>
+          </div>
+          <div class="devlog-title">${esc(e.title)}</div>
+          ${e.branch || e.pr_url ? `
+            <div class="devlog-meta">
+              ${e.branch ? `<span class="devlog-branch">${esc(e.branch)}</span>` : ''}
+              ${e.pr_url ? `<a class="devlog-link" href="${esc(e.pr_url)}" target="_blank" rel="noopener">View PR/Commit</a>` : ''}
+            </div>
+          ` : ''}
+          ${e.notes ? `<div class="devlog-notes">${esc(e.notes)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+$('#devlog-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {
+    agent: $('#devlog-agent').value,
+    title: $('#devlog-title').value,
+    branch: $('#devlog-branch').value || null,
+    pr_url: $('#devlog-pr').value || null,
+    notes: $('#devlog-notes').value || null,
+  };
+
+  try {
+    const res = await fetch(DEVLOG_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Request failed');
+    }
+    $('#devlog-form').reset();
+    loadDevLog();
+  } catch (err) {
+    alert(`Failed to save: ${err.message}`);
+  }
+});
 
 // Init
 loadTasks();

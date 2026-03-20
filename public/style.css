@@ -465,3 +465,103 @@ body {
   border-color: var(--primary);
   border-style: solid;
 }
+
+/* Dev Log */
+.devlog-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.devlog-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.devlog-timeline {
+  position: relative;
+  padding-left: 24px;
+  border-left: 2px solid var(--border);
+}
+
+.devlog-entry {
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.devlog-entry:last-child {
+  padding-bottom: 0;
+}
+
+.devlog-dot {
+  position: absolute;
+  left: -31px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+}
+
+.devlog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.devlog-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.devlog-agent {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.devlog-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.devlog-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.devlog-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.devlog-branch {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--text-muted);
+  background: var(--surface2);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.devlog-link {
+  font-size: 0.8rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.devlog-link:hover {
+  text-decoration: underline;
+}
+
+.devlog-notes {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

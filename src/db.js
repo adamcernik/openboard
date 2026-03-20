@@ -69,4 +69,38 @@ if (todoCount.count === 0) {
   seed();
 }
 
+// Dev Log table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS dev_log (
+    id INTEGER PRIMARY KEY,
+    created_at DATETIME DEFAULT (datetime('now')),
+    agent TEXT,
+    title TEXT NOT NULL,
+    branch TEXT,
+    pr_url TEXT,
+    notes TEXT
+  )
+`);
+
+// Seed dev_log if table is empty
+const logCount = db.prepare('SELECT COUNT(*) as count FROM dev_log').get();
+if (logCount.count === 0) {
+  const insertLog = db.prepare(
+    'INSERT INTO dev_log (agent, title, branch, pr_url, notes, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  );
+  const seedLog = db.transaction(() => {
+    insertLog.run('Erik', 'Dashboard MVP', 'main', null, null, '2025-06-01 10:00:00');
+    insertLog.run('Erik', 'Todos section with DB seeding', 'main', null, null, '2025-06-02 14:00:00');
+    insertLog.run(
+      'Erik',
+      'Todo → Task conversion',
+      'feature/todo-to-task',
+      'https://github.com/adamcernik/openboard/commit/d456ff0',
+      'Atomic conversion via POST /api/todos/:id/convert. Brock reviewed and approved.',
+      '2025-06-03 09:00:00'
+    );
+  });
+  seedLog();
+}
+
 module.exports = db;
