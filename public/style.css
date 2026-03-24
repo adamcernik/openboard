@@ -41,6 +41,47 @@ body {
   letter-spacing: -0.5px;
 }
 
+/* Project selector in navbar */
+.project-selector {
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.project-selector:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn-icon {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--primary);
+}
+
 .navbar-tabs {
   display: flex;
   gap: 4px;

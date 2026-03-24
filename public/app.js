@@ -1,18 +1,96 @@
 const API = '/api/tasks';
 const TODOS_API = '/api/todos';
 const DEVLOG_API = '/api/devlog';
+const PROJECTS_API = '/api/projects';
 
 let filters = { status: '', assignee: '' };
 let currentView = 'tasks';
+let selectedProjectId = '';
+let projectsCache = [];
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
+
+// === Projects ===
+async function loadProjects() {
+  const res = await fetch(PROJECTS_API);
+  projectsCache = await res.json();
+  populateProjectSelectors();
+}
+
+function populateProjectSelectors() {
+  // Navbar selector
+  const sel = $('#project-selector');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All projects</option>' +
+    projectsCache.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.value = current;
+
+  // Task form selector
+  const taskSel = $('#task-project');
+  const taskCurrent = taskSel.value;
+  taskSel.innerHTML = '<option value="">No project</option>' +
+    projectsCache.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  taskSel.value = taskCurrent;
+}
+
+$('#project-selector').addEventListener('change', (e) => {
+  selectedProjectId = e.target.value;
+  if (currentView === 'tasks') loadTasks();
+});
+
+// New project modal
+function openProjectModal() {
+  $('#project-modal-overlay').classList.add('open');
+}
+
+function closeProjectModal() {
+  $('#project-modal-overlay').classList.remove('open');
+  $('#project-form').reset();
+}
+
+$('#new-project-btn').addEventListener('click', openProjectModal);
+$('#project-modal-close').addEventListener('click', closeProjectModal);
+$('#project-cancel-btn').addEventListener('click', closeProjectModal);
+$('#project-modal-overlay').addEventListener('click', (e) => {
+  if (e.target === $('#project-modal-overlay')) closeProjectModal();
+});
+
+$('#project-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {
+    name: $('#project-name').value,
+    description: $('#project-desc').value || null,
+  };
+
+  try {
+    const res = await fetch(PROJECTS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Request failed');
+    }
+    const project = await res.json();
+    closeProjectModal();
+    await loadProjects();
+    // Auto-select the newly created project
+    $('#project-selector').value = project.id;
+    selectedProjectId = String(project.id);
+    if (currentView === 'tasks') loadTasks();
+  } catch (err) {
+    alert(`Failed to create project: ${err.message}`);
+  }
+});
 
 // Fetch and render tasks
 async function loadTasks() {
   const params = new URLSearchParams();
   if (filters.status) params.set('status', filters.status);
   if (filters.assignee) params.set('assignee', filters.assignee);
+  if (selectedProjectId) params.set('project_id', selectedProjectId);
 
   const res = await fetch(`${API}?${params}`);
   const tasks = await res.json();
@@ -93,6 +171,10 @@ function closeModal() {
 
 $('#new-task-btn').addEventListener('click', () => {
   closeModal();
+  // Pre-select current project filter
+  if (selectedProjectId) {
+    $('#task-project').value = selectedProjectId;
+  }
   openModal();
 });
 
@@ -111,6 +193,7 @@ function openEditModal(task) {
   $('#task-priority').value = task.priority;
   $('#task-status').value = task.status;
   $('#task-assignee').value = task.assignee || '';
+  $('#task-project').value = task.project_id || '';
   $('#delete-task-btn').style.display = 'inline-block';
   openModal();
 }
@@ -134,6 +217,7 @@ $('#task-form').addEventListener('submit', async (e) => {
     priority: $('#task-priority').value,
     status: $('#task-status').value,
     assignee: $('#task-assignee').value || null,
+    project_id: $('#task-project').value ? Number($('#task-project').value) : null,
   };
 
   const id = $('#task-id').value;
@@ -374,4 +458,5 @@ $('#devlog-form').addEventListener('submit', async (e) => {
 });
 
 // Init
+loadProjects();
 loadTasks();

@@ -9,11 +9,15 @@
 <body>
   <nav class="top-navbar">
     <span class="navbar-logo">Openboard</span>
+    <select class="project-selector" id="project-selector">
+      <option value="">All projects</option>
+    </select>
     <div class="navbar-tabs">
       <button class="nav-btn active" data-view="tasks">Tasks</button>
       <button class="nav-btn" data-view="todos">Todos</button>
       <button class="nav-btn" data-view="devlog">Dev Log</button>
     </div>
+    <button class="btn-icon" id="new-project-btn" title="New project">+</button>
   </nav>
 
   <div class="layout">
@@ -132,12 +136,44 @@
               <option value="Adam">Adam</option>
             </select>
           </div>
+          <div class="form-group">
+            <label for="task-project">Project</label>
+            <select id="task-project">
+              <option value="">No project</option>
+            </select>
+          </div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-danger" id="delete-task-btn" style="display:none">Delete</button>
           <div class="form-actions-right">
             <button type="button" class="btn" id="cancel-btn">Cancel</button>
             <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- New Project Modal -->
+  <div class="modal-overlay" id="project-modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>New Project</h3>
+        <button class="modal-close" id="project-modal-close">&times;</button>
+      </div>
+      <form id="project-form">
+        <div class="form-group">
+          <label for="project-name">Project name *</label>
+          <input type="text" id="project-name" required placeholder="Project name">
+        </div>
+        <div class="form-group">
+          <label for="project-desc">Description</label>
+          <textarea id="project-desc" rows="3" placeholder="Optional description"></textarea>
+        </div>
+        <div class="form-actions">
+          <div class="form-actions-right">
+            <button type="button" class="btn" id="project-cancel-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create</button>
           </div>
         </div>
       </form>

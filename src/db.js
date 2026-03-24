@@ -69,6 +69,23 @@ if (todoCount.count === 0) {
   seed();
 }
 
+// Projects table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at DATETIME DEFAULT (datetime('now'))
+  )
+`);
+
+// Migration: add project_id column to tasks if missing
+try {
+  db.exec('ALTER TABLE tasks ADD COLUMN project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL');
+} catch (e) {
+  if (!e.message.includes('duplicate column')) throw e;
+}
+
 // Dev Log table
 db.exec(`
   CREATE TABLE IF NOT EXISTS dev_log (

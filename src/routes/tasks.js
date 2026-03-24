@@ -15,6 +15,10 @@ router.get('/', (req, res) => {
     sql += ' AND assignee = ?';
     params.push(req.query.assignee);
   }
+  if (req.query.project_id) {
+    sql += ' AND project_id = ?';
+    params.push(req.query.project_id);
+  }
 
   sql += ' ORDER BY created_at DESC';
 
@@ -24,15 +28,15 @@ router.get('/', (req, res) => {
 
 // POST /api/tasks
 router.post('/', (req, res) => {
-  const { title, description, priority, status, assignee } = req.body;
+  const { title, description, priority, status, assignee, project_id } = req.body;
 
   if (!title || !title.trim()) {
     return res.status(400).json({ error: 'Title is required' });
   }
 
   const stmt = db.prepare(`
-    INSERT INTO tasks (title, description, priority, status, assignee)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO tasks (title, description, priority, status, assignee, project_id)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -40,7 +44,8 @@ router.post('/', (req, res) => {
     description || '',
     priority || 'medium',
     status || 'todo',
-    assignee || null
+    assignee || null,
+    project_id || null
   );
 
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
@@ -54,7 +59,7 @@ router.patch('/:id', (req, res) => {
     return res.status(404).json({ error: 'Task not found' });
   }
 
-  const fields = ['title', 'description', 'priority', 'status', 'assignee'];
+  const fields = ['title', 'description', 'priority', 'status', 'assignee', 'project_id'];
   const updates = [];
   const params = [];
 
