@@ -608,3 +608,155 @@ body {
   color: var(--text-muted);
   line-height: 1.5;
 }
+
+/* Hamburger button - hidden on desktop */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  margin: 5px 0;
+  border-radius: 1px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile menu overlay */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 49;
+}
+
+.mobile-menu-overlay.open {
+  display: block;
+}
+
+/* Mobile slide-in menu */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 56px;
+  right: 0;
+  width: 260px;
+  max-width: 80vw;
+  bottom: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 50;
+  padding: 20px 16px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-section {
+  margin-bottom: 24px;
+}
+
+.mobile-menu-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.mobile-nav-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.mobile-nav-btn:hover { background: var(--surface2); color: var(--text); }
+.mobile-nav-btn.active { background: var(--primary); color: white; font-weight: 600; }
+
+.mobile-project-selector {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.mobile-new-project-btn {
+  width: 100%;
+  text-align: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .navbar-tabs,
+  .top-navbar .project-selector,
+  .top-navbar #new-project-btn {
+    display: none;
+  }
+
+  .top-navbar {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .sidebar {
+    width: 160px;
+    padding: 16px 12px;
+  }
+
+  .topbar h2 {
+    font-size: 1.1rem;
+  }
+
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

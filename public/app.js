@@ -19,18 +19,25 @@ async function loadProjects() {
 }
 
 function populateProjectSelectors() {
+  const opts = projectsCache.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+
   // Navbar selector
   const sel = $('#project-selector');
   const current = sel.value;
-  sel.innerHTML = '<option value="">All projects</option>' +
-    projectsCache.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">All projects</option>' + opts;
   sel.value = current;
+
+  // Mobile navbar selector
+  const mobileSel = $('#mobile-project-selector');
+  if (mobileSel) {
+    mobileSel.innerHTML = '<option value="">All projects</option>' + opts;
+    mobileSel.value = current;
+  }
 
   // Task form selector
   const taskSel = $('#task-project');
   const taskCurrent = taskSel.value;
-  taskSel.innerHTML = '<option value="">No project</option>' +
-    projectsCache.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  taskSel.innerHTML = '<option value="">No project</option>' + opts;
   taskSel.value = taskCurrent;
 }
 
@@ -455,6 +462,75 @@ $('#devlog-form').addEventListener('submit', async (e) => {
   } catch (err) {
     alert(`Failed to save: ${err.message}`);
   }
+});
+
+// === Mobile menu ===
+const hamburgerBtn = $('#hamburger-btn');
+const mobileMenu = $('#mobile-menu');
+const mobileOverlay = $('#mobile-menu-overlay');
+
+function openMobileMenu() {
+  hamburgerBtn.classList.add('open');
+  mobileOverlay.classList.add('open');
+  mobileMenu.classList.add('open');
+}
+
+function closeMobileMenu() {
+  hamburgerBtn.classList.remove('open');
+  mobileOverlay.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+hamburgerBtn.addEventListener('click', () => {
+  if (mobileMenu.classList.contains('open')) {
+    closeMobileMenu();
+  } else {
+    openMobileMenu();
+  }
+});
+
+mobileOverlay.addEventListener('click', closeMobileMenu);
+
+// Mobile view switching
+$$('.mobile-nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Update both desktop and mobile active states
+    $$('.nav-btn').forEach(b => b.classList.remove('active'));
+    $$('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Also sync desktop tab
+    const desktopBtn = $(`.nav-btn[data-view="${btn.dataset.view}"]`);
+    if (desktopBtn) desktopBtn.classList.add('active');
+    switchView(btn.dataset.view);
+    closeMobileMenu();
+  });
+});
+
+// Sync mobile nav when desktop nav is clicked
+$$('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+    const mobileBtn = $(`.mobile-nav-btn[data-view="${btn.dataset.view}"]`);
+    if (mobileBtn) mobileBtn.classList.add('active');
+  });
+});
+
+// Mobile project selector - sync with main selector
+$('#mobile-project-selector').addEventListener('change', (e) => {
+  selectedProjectId = e.target.value;
+  $('#project-selector').value = selectedProjectId;
+  if (currentView === 'tasks') loadTasks();
+});
+
+// Keep mobile selector in sync when desktop selector changes
+$('#project-selector').addEventListener('change', () => {
+  $('#mobile-project-selector').value = $('#project-selector').value;
+});
+
+// Mobile new project button
+$('#mobile-new-project-btn').addEventListener('click', () => {
+  closeMobileMenu();
+  openProjectModal();
 });
 
 // Init

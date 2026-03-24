@@ -18,7 +18,27 @@
       <button class="nav-btn" data-view="devlog">Dev Log</button>
     </div>
     <button class="btn-icon" id="new-project-btn" title="New project">+</button>
+    <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-label">View</div>
+      <button class="mobile-nav-btn active" data-view="tasks">Tasks</button>
+      <button class="mobile-nav-btn" data-view="todos">Todos</button>
+      <button class="mobile-nav-btn" data-view="devlog">Dev Log</button>
+    </div>
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-label">Project</div>
+      <select class="project-selector mobile-project-selector" id="mobile-project-selector">
+        <option value="">All projects</option>
+      </select>
+      <button class="btn btn-primary mobile-new-project-btn" id="mobile-new-project-btn">+ New Project</button>
+    </div>
+  </div>
 
   <div class="layout">
     <aside class="sidebar" id="task-filters">
