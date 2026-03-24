@@ -3,38 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Dashboard</title>
+  <title>Openboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h1 class="logo">TaskBoard</h1>
+  <nav class="top-navbar">
+    <span class="navbar-logo">Openboard</span>
+    <div class="navbar-tabs">
+      <button class="nav-btn active" data-view="tasks">Tasks</button>
+      <button class="nav-btn" data-view="todos">Todos</button>
+      <button class="nav-btn" data-view="devlog">Dev Log</button>
+    </div>
+  </nav>
 
-      <div class="nav-section">
-        <h3>Views</h3>
-        <button class="nav-btn active" data-view="tasks">Tasks</button>
-        <button class="nav-btn" data-view="todos">Todos</button>
-        <button class="nav-btn" data-view="devlog">Dev Log</button>
+  <div class="layout">
+    <aside class="sidebar" id="task-filters">
+      <div class="filter-section">
+        <h3>Status</h3>
+        <button class="filter-btn active" data-filter="status" data-value="">All</button>
+        <button class="filter-btn" data-filter="status" data-value="todo">To Do</button>
+        <button class="filter-btn" data-filter="status" data-value="in-progress">In Progress</button>
+        <button class="filter-btn" data-filter="status" data-value="done">Done</button>
       </div>
 
-      <div id="task-filters">
-        <div class="filter-section">
-          <h3>Status</h3>
-          <button class="filter-btn active" data-filter="status" data-value="">All</button>
-          <button class="filter-btn" data-filter="status" data-value="todo">To Do</button>
-          <button class="filter-btn" data-filter="status" data-value="in-progress">In Progress</button>
-          <button class="filter-btn" data-filter="status" data-value="done">Done</button>
-        </div>
-
-        <div class="filter-section">
-          <h3>Assignee</h3>
-          <button class="filter-btn active" data-filter="assignee" data-value="">All</button>
-          <button class="filter-btn" data-filter="assignee" data-value="TARS">TARS</button>
-          <button class="filter-btn" data-filter="assignee" data-value="Erik">Erik</button>
-          <button class="filter-btn" data-filter="assignee" data-value="Brock">Brock</button>
-          <button class="filter-btn" data-filter="assignee" data-value="Adam">Adam</button>
-        </div>
+      <div class="filter-section">
+        <h3>Assignee</h3>
+        <button class="filter-btn active" data-filter="assignee" data-value="">All</button>
+        <button class="filter-btn" data-filter="assignee" data-value="TARS">TARS</button>
+        <button class="filter-btn" data-filter="assignee" data-value="Erik">Erik</button>
+        <button class="filter-btn" data-filter="assignee" data-value="Brock">Brock</button>
+        <button class="filter-btn" data-filter="assignee" data-value="Adam">Adam</button>
       </div>
     </aside>
 
