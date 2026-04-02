@@ -17,6 +17,17 @@ npm run dev      # starts with --watch on localhost:3001
 
 The database initializes automatically on first run.
 
+## Project Home
+
+Project documentation lives in [`docs/`](./docs):
+- product vision
+- roadmap
+- architecture overview
+- decisions log
+- workflow
+
+Start with [`docs/README.md`](./docs/README.md).
+
 ## API
 
 | Endpoint | Methods |
